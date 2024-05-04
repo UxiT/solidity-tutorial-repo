@@ -3,27 +3,28 @@ const {ethers} = require('hardhat');
 
 describe('RealEstate', () => {
     let realEstate, escrow;
-    let deployer, seller, buyer;
+    let seller, buyer, lender, inspector;
     let nftID = 1;
 
     beforeEach(async () => {
-        accounts = await ethers.getSigners()
-        deployer = accounts[0]
-        seller = deployer
-        buyer = accounts[1]
+        [seller, buyer, lender, inspector] = await ethers.getSigners()
 
         const RealEstate = await ethers.getContractFactory('RealEstate');
         const Escrow = await ethers.getContractFactory('Escrow');
 
         realEstate = await RealEstate.deploy();
         escrow = await Escrow.deploy(
-            realEstate.address,
+            realEstate.target,
             nftID,
-            realEstate.address,
-            realEstate.address
+            ethers.parseUnits('100', 'ether'),
+            ethers.parseUnits('20', 'ether'),
+            seller.address,
+            buyer.address,
+            lender.address,
+            inspector.address
         );
 
-        // await realEstate.connect(seller).approve(escrow.address, nftID)
+        await realEstate.connect(seller).approve(escrow.target, nftID)
     })
 
     describe('Deployment', () => {
@@ -37,7 +38,6 @@ describe('RealEstate', () => {
         expect(await realEstate.ownerOf(nftID)).to.equal(seller.address);
 
         transaction = await escrow.connect(buyer).finalizeSale();
-        console.log("Buyer finalizes sale")
 
         expect(await realEstate.ownerOf(nftID)).to.equal(buyer.address);
       });  

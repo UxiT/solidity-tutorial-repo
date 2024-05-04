@@ -9,19 +9,31 @@ contract Escrow {
 
     address public nftAddress;
     uint256 public nftId;
+    uint256 public purchasePrice;
+    uint256 public escrowAmount;
     address payable public seller;
     address payable public buyer;
+    address public lender;
+    address public inspector;
 
     constructor(
         address _nftAddress,
         uint256 _nftId,
+        uint256 _purchasePrice,
+        uint256 _escrowAmount,
         address payable _seller,
-        address payable _buyer
+        address payable _buyer,
+        address _lender,
+        address  _inspector
     ) {
         nftAddress = _nftAddress;
         nftId = _nftId;
+        purchasePrice = _purchasePrice;
+        escrowAmount = _escrowAmount;
         seller = _seller;
         buyer = _buyer;
+        lender = _lender;
+        inspector = _inspector;
     }
 
     function finalizeSale() public {
