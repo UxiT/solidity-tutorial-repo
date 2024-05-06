@@ -43,25 +43,35 @@ describe('RealEstate', () => {
     })
 
     describe('Selling real estate', () => {
-        let balance;
+      it('deposits earnest', async () => {
+        await escrow.connect(buyer).depositEarnest({value: escrowAmount})
+        expect(await escrow.getBalance()).to.equal(escrowAmount)
+      })
+
+      it('updates inspection status', async () => {
+        expect(await escrow.inspectionPassed()).to.equal(false);
+        await escrow.connect(inspector).updateInspectionStatus(true)
+        expect(await escrow.inspectionPassed()).to.equal(true);
+        await escrow.connect(inspector).updateInspectionStatus(false)
+        expect(await escrow.inspectionPassed()).to.equal(false);
+      })
 
       it('executes transation successfully', async () => {
         expect(await realEstate.ownerOf(nftID)).to.equal(seller.address);
 
         await escrow.connect(buyer).depositEarnest({value: escrowAmount})
-        balance = await escrow.getBalance()
-        console.log("escrow balance:", ethers.formatEther(balance.toString()))
 
         await escrow.connect(inspector).updateInspectionStatus(true)
+
         await escrow.connect(buyer).approveSale()
         await escrow.connect(seller).approveSale()
-        await escrow.connect(lender).approveSale()
 
         await escrow.connect(lender).depositLenderFunds({value: ether(80)})
+        await escrow.connect(lender).approveSale()
+
         await escrow.connect(buyer).finalizeSale();
 
-        console.log(ethers.provider.getBalance(seller.address));
         expect(await realEstate.ownerOf(nftID)).to.equal(buyer.address);
-      });  
+      });
     })
 })

@@ -62,12 +62,6 @@ contract Escrow {
 
     function depositLenderFunds() public payable onlyLender {
         require(msg.value + address(this).balance >= purchasePrice);
-
-        uint diff = (msg.value + address(this).balance) - purchasePrice;
-
-        if (diff > 0) {
-            payable(lender).transfer(diff);
-        }
     }
 
     function updateInspectionStatus(bool _inspectionPassed) public onlyInspector {
