@@ -2,8 +2,9 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract Bank {
+contract Bank is ReentrancyGuard {
     using Address for address payable;
     
     mapping (address => uint256) public balanceOf;
@@ -12,7 +13,7 @@ contract Bank {
         balanceOf[msg.sender] += msg.value;
     }
 
-    function withdraw() external {
+    function withdraw() external nonReentrant {
         uint256 depositedAmount = balanceOf[msg.sender];
         payable(msg.sender).sendValue(depositedAmount);
 
